@@ -22,3 +22,12 @@ Actually running the bot:
 ```bash
 java -jar bot.jar
 ```
+
+
+## Giving the bot extra context
+
+If you want to use this bot in a Minecraft Discord Server for example, you can provide the bot with extra context in the .env, you can get results like this:
+![image](https://github.com/user-attachments/assets/f607269c-3738-435e-8a94-19e35c0093a5)
+
+This example is using EXTRACONTEXT="This Discord Server is for a Minecraft server .The rules for this server can be found in <#1279429702368493692>. Users can connect to the Minecraft server using the ip play.helpme.nl"
+
