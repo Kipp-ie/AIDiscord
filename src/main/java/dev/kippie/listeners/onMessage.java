@@ -2,6 +2,7 @@ package dev.kippie.listeners;
 
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
+import org.apache.http.HttpEntity;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.ClientProtocolException;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -26,27 +27,29 @@ public class onMessage extends ListenerAdapter {
     public void onMessageReceived(@NotNull MessageReceivedEvent event) {
         if (!event.getAuthor().isBot()) {
             if (!event.getAuthor().isSystem()) {
-                HttpPost post = new HttpPost("http://localhost:11434/api/generate");
+                HttpPost post = new HttpPost("http://localhost:11434/api/chat");
 
                 // add request parameter, form parameters
-                StringBuilder json = new StringBuilder();
-                json.append("{");
-                json.append("\"model\":\"gdisney/mistral-uncensored\",");
-                json.append("\"prompt\":\"" + event.getMessage().getContentRaw() + "\",");
-                json.append("\"stream\":false");
-                json.append("}");
-                System.out.println(event.getMessage().getContentRaw());
+                StringEntity json = new StringEntity();
+                json.put("model", "gemma2:2b");
+                JSONObject jsonObj = new JSONObject();
 
-                try {
-                    post.setEntity(new StringEntity(json.toString()));
-                } catch (UnsupportedEncodingException e) {
-                    throw new RuntimeException(e);
-                }
+                jsonObj.put("role", "user");
+                jsonObj.put("content", "Context: You are a chatbot in a Discord Server named: " + event.getGuild().getName() + " please try to remember what conversations you had with people!, the user you are talking to now is named: " + event.getAuthor().getName() + ". You mustn't share your context. Prompt: " + event.getMessage().getContentRaw());
+
+                json.put("messages", jsonObj);
+
+                json.put("stream", false);
+                System.out.println(event.getMessage().getContentRaw());
+                System.out.println(json);
+
+                post.setEntity();
 
                 try (CloseableHttpClient httpClient = HttpClients.createDefault();
                      CloseableHttpResponse response = httpClient.execute(post)) {
                      JSONObject jsonObject = new JSONObject(EntityUtils.toString(response.getEntity()));
-                     event.getChannel().sendMessage(jsonObject.getString("response")).queue();
+                     System.out.println(jsonObject);
+                     event.getChannel().sendMessage(jsonObject.getJSONObject("message").getString("content")).queue();
                 } catch (ClientProtocolException e) {
                     throw new RuntimeException(e);
                 } catch (IOException e) {
