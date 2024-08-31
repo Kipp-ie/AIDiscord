@@ -1,7 +1,9 @@
 package dev.kippie;
 
 import dev.kippie.listeners.onEnable;
+import dev.kippie.listeners.onMemberJoin;
 import dev.kippie.listeners.onMessage;
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.requests.GatewayIntent;
@@ -17,14 +19,17 @@ public class Main {
     private ShardManager shardManager;
 
     public Main() throws LoginException, InterruptedException {
-        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault("");
+        Dotenv dotenv = Dotenv.load();
+        DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault(dotenv.get("TOKEN"));
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
         builder.setActivity(Activity.watching("Generating status..."));
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
         shardManager = builder.build();
         shardManager.addEventListener(
                 new onMessage(),
-                new onEnable()
+                new onEnable(),
+                new onMemberJoin()
+
         );
 
 

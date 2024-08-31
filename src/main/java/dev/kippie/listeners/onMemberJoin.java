@@ -1,7 +1,7 @@
 package dev.kippie.listeners;
 
 import net.dv8tion.jda.api.entities.Activity;
-import net.dv8tion.jda.api.events.guild.GuildReadyEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
@@ -16,16 +16,16 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 
-public class onEnable extends ListenerAdapter {
+public class onMemberJoin extends ListenerAdapter {
     @Override
-    public void onGuildReady(@NotNull GuildReadyEvent event) {
+    public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
         HttpPost post = new HttpPost("http://localhost:11434/api/chat");
         JSONObject json = new JSONObject();
 
         json.put("model", "gemma2:2b");
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("role", "user");
-        jsonObj.put("content", "You are a Discord Bot, generate 1 very-short funny Discord Bot status. Max 4 words. Without any further message only the status. Your personality is nerdy ");
+        jsonObj.put("content", "Context: Someone named " + event.getUser().getName() + " has joined the server named " + event.getGuild().getName() + ". Your name is" + event.getJDA().getSelfUser().getName() + ". Give him/her a warm welcome by sending them a message! Your personality is catgirl" );
 
         JSONArray ja = new JSONArray();
         ja.put(jsonObj);
@@ -49,11 +49,16 @@ public class onEnable extends ListenerAdapter {
              CloseableHttpResponse response = httpClient.execute(post)) {
             JSONObject jsonObject = new JSONObject(EntityUtils.toString(response.getEntity()));
 
+            event.getUser().openPrivateChannel().map(channel -> {
+                channel.sendMessage(jsonObject.getJSONObject("message").getString("content")).queue();
 
-            event.getJDA().getPresence().setActivity(Activity.customStatus(jsonObject.getJSONObject("message").getString("content")));
-            System.out.println("Status has been changed to: " + jsonObject.getJSONObject("message").getString("content"));
+
+                return null;
+            }).queue();
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
     }
-}
+
+    }
+
