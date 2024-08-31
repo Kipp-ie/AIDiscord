@@ -1,5 +1,6 @@
 package dev.kippie.listeners;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
@@ -19,13 +20,14 @@ import java.io.UnsupportedEncodingException;
 public class onMemberJoin extends ListenerAdapter {
     @Override
     public void onGuildMemberJoin(@NotNull GuildMemberJoinEvent event) {
+        Dotenv dotenv = Dotenv.load();
         HttpPost post = new HttpPost("http://localhost:11434/api/chat");
         JSONObject json = new JSONObject();
 
-        json.put("model", "gemma2:2b");
+        json.put("model", dotenv.get("MODEL"));
         JSONObject jsonObj = new JSONObject();
         jsonObj.put("role", "user");
-        jsonObj.put("content", "Context: Someone named " + event.getUser().getName() + " has joined the server named " + event.getGuild().getName() + ". Your name is" + event.getJDA().getSelfUser().getName() + ". Give him/her a warm welcome by sending them a message! Your personality is catgirl" );
+        jsonObj.put("content", "Context: Someone named " + event.getUser().getName() + " has joined the server named " + event.getGuild().getName() + ". Your name is" + event.getJDA().getSelfUser().getName() + ". Give him/her a warm welcome by sending them a message! Your personality is " + dotenv.get("PERSONALITY") );
 
         JSONArray ja = new JSONArray();
         ja.put(jsonObj);
