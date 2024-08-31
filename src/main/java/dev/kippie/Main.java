@@ -1,5 +1,6 @@
 package dev.kippie;
 
+import dev.kippie.listeners.onEnable;
 import dev.kippie.listeners.onMessage;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
@@ -18,11 +19,12 @@ public class Main {
     public Main() throws LoginException, InterruptedException {
         DefaultShardManagerBuilder builder = DefaultShardManagerBuilder.createDefault("");
         builder.setStatus(OnlineStatus.DO_NOT_DISTURB);
-        builder.setActivity(Activity.watching("AI"));
+        builder.setActivity(Activity.watching("Generating status..."));
         builder.enableIntents(GatewayIntent.GUILD_MEMBERS, GatewayIntent.GUILD_MESSAGES, GatewayIntent.DIRECT_MESSAGES, GatewayIntent.MESSAGE_CONTENT);
         shardManager = builder.build();
         shardManager.addEventListener(
-                new onMessage()
+                new onMessage(),
+                new onEnable()
         );
 
 
